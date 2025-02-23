@@ -8,6 +8,8 @@ def test_create_order():
     assert response.status_code == 200
     assert response.json() == {"message": "Order created successfully"}
 
+
+
 def test_get_orders():
     response = client.get("/orders")
     assert response.status_code == 200

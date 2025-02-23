@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import sqlite3
+from fastapi import WebSocket
 
 app = FastAPI()
 
@@ -32,3 +33,12 @@ async def get_orders():
     cursor.execute("SELECT * FROM orders")
     orders = cursor.fetchall()
     return {"orders": orders}
+
+
+
+# @app.websocket("/ws")
+# async def websocket_endpoint(websocket: WebSocket):
+#     await websocket.accept()
+#     while True:
+#         data = await websocket.receive_text()
+#         await websocket.send_text(f"Message received: {data}")
