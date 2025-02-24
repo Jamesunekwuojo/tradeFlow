@@ -29,7 +29,7 @@ async def create_order(order: Order):
     cursor.execute('''INSERT INTO orders (symbol, price, quantity, order_type)
                     VALUES (?, ?, ?, ?)''', (order.symbol, order.price, order.quantity, order.order_type))
     conn.commit()
-    order_id = cursor.fetchone()['id']
+    order_id = cursor.lastrowid 
     return {"message": "Order created successfully", "order_id": order_id}
 
 # GET /orders
