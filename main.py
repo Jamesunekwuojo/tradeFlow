@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import sqlite3
-from fastapi import WebSocket
+
+
+
 
 app = FastAPI()
 
@@ -11,6 +13,8 @@ cursor = conn.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS orders
                 (id INTEGER PRIMARY KEY, symbol TEXT, price FLOAT, quantity INTEGER, order_type TEXT)''')
 conn.commit()
+
+
 
 # Pydantic model for request validation
 class Order(BaseModel):
@@ -25,7 +29,8 @@ async def create_order(order: Order):
     cursor.execute('''INSERT INTO orders (symbol, price, quantity, order_type)
                     VALUES (?, ?, ?, ?)''', (order.symbol, order.price, order.quantity, order.order_type))
     conn.commit()
-    return {"message": "Order created successfully"}
+    order_id = cursor.fetchone()['id']
+    return {"message": "Order created successfully", "order_id": order_id}
 
 # GET /orders
 @app.get("/orders")
@@ -36,9 +41,3 @@ async def get_orders():
 
 
 
-# @app.websocket("/ws")
-# async def websocket_endpoint(websocket: WebSocket):
-#     await websocket.accept()
-#     while True:
-#         data = await websocket.receive_text()
-#         await websocket.send_text(f"Message received: {data}")
