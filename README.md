@@ -118,20 +118,46 @@ sudo docker run -d -p 80:80 trade-api
 Create a `.github/workflows/deploy.yml` file in your repository:
 
 ```yaml
-name: Deploy to EC2
+name: CI/CD Pipeline
 
 on:
+  pull_request:
+    branches: [master]
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Build Docker image
         run: docker build -t trade-api .
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -142,6 +168,7 @@ jobs:
             docker stop trade-api || true
             docker rm trade-api || true
             docker run -d -p 80:80 --name trade-api trade-api
+
 ```
 
 #### Add the following secrets to your GitHub repository:
